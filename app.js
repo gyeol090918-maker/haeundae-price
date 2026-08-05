@@ -205,6 +205,28 @@ nearbyByPrice=function(menu,target){const matches=realHaeundaeStores.filter(s=>s
 function initHomeStoreList(){const list=document.querySelector('#placeList');if(!list)return;list.innerHTML=storeCards();const title=document.querySelector('#nearbyTitle');const sub=document.querySelector('#nearbySubtitle');if(title)title.textContent='실제 인근 식당';if(sub)sub.textContent=`해운대 인근 실제 매장 ${realHaeundaeStores.length}곳`;}
 initHomeStoreList();
 
+// 가격 비교 화면에서는 임시 추천 상호 대신 실제 장소 검색 결과만 보여준다.
+searchActualHaeundaePlaces=function(){};
+function initActualPriceRecommendations(){
+  const form=document.querySelector('#priceForm');
+  if(!form)return;
+  form.addEventListener('submit',()=>setTimeout(()=>{
+    const menu=document.querySelector('#compactMenu')?.value;
+    const target=Number(document.querySelector('#compactPrice')?.value);
+    const result=document.querySelector('#resultContent');
+    if(!menu||!target||!result)return;
+    const render=places=>{
+      result.querySelectorAll('.recommendation-box').forEach(box=>box.remove());
+      const cards=places.slice(0,8).map(place=>{const name=place.place_name.replace(/</g,'&lt;');const kind=(place.category_name||menu).split(' > ').pop();const address=place.road_address_name||place.address_name||'해운대 인근';return `<article class="mini-recommendation"><div><b>${name}</b><span>${kind} · ${address}</span></div><a class="button ghost" target="_blank" rel="noopener" href="${place.place_url}">지도</a></article>`;}).join('');
+      result.insertAdjacentHTML('beforeend',`<section class="recommendation-box"><h3>${menu} 실제 식당 추천</h3><p>입력 가격 ${won(target)}을 비교한 뒤, 해운대 인근 실제 식당을 보여드립니다. 실제 메뉴 가격은 방문 전 메뉴판에서 확인해 주세요.</p>${cards||'<p class="source-note">실제 식당을 찾지 못했습니다.</p>'}</section>`);
+    };
+    if(!window.kakao?.maps?.services){render([]);return;}
+    const places=new kakao.maps.services.Places();
+    places.keywordSearch(`해운대 ${menu}`,(data,status)=>render(status===kakao.maps.services.Status.OK?data:[]),{x:129.1604,y:35.1587,radius:5000,size:15,sort:kakao.maps.services.SortBy.DISTANCE});
+  },180));
+}
+initActualPriceRecommendations();
+
 function initHomeRestaurantNameSearch(){
   const existingForm=document.querySelector('#nearbySearch');
   if(!existingForm)return;
