@@ -250,7 +250,7 @@ function initHomeRestaurantNameSearch(){
         sub.textContent=`지도에 등록된 ${actual.length}개 식당입니다`;
         list.innerHTML=actual.map(place=>{const name=place.place_name.replace(/</g,'&lt;');const category=(place.category_name||'음식점').split(' > ').pop();const address=place.road_address_name||place.address_name||'해운대 인근';return `<article class="place-card search-result-card"><div class="place-top"><h3>${name}</h3><span class="price-tag tag-적정">실제 장소</span></div><p>${category} · ${address}</p><p class="price-judgement">가격 비교 데이터는 대표 메뉴를 입력해 별도로 확인할 수 있습니다.</p><a class="place-map-link" target="_blank" rel="noopener" href="${place.place_url}">지도에서 보기 →</a></article>`;}).join('');
       },{x:129.1604,y:35.1587,radius:5000,size:15,sort:kakao.maps.services.SortBy.DISTANCE});
-    }else{
+    }else if(!fallbackPlaces){
       sub.textContent='실제 지도 등록 식당을 찾는 중입니다…';
       const escaped=query.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
       const osmQuery=`[out:json][timeout:20];(nwr["amenity"="restaurant"]["name"~"${escaped}",i](around:5000,35.1587,129.1604);nwr["amenity"="fast_food"]["name"~"${escaped}",i](around:5000,35.1587,129.1604););out center tags;`;
