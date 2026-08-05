@@ -1,4 +1,3 @@
-
 const nationalAverages = {
   '냉면': 10817, '비빔밥': 10301, '김치찌개백반': 9036, '삼겹살': 17839,
   '자장면': 7211, '삼계탕': 16801, '칼국수': 9053, '김밥': 3465
@@ -73,7 +72,23 @@ function initMapPage(){
   fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`).then(response=>{if(!response.ok)throw new Error('map data unavailable');return response.json();}).then(data=>{
     const restaurants=data.elements.filter(item=>item.tags?.name).slice(0,40); count.textContent=`${restaurants.length}곳`;
     list.innerHTML=restaurants.map((item,index)=>{const tags=item.tags,kind=tags.amenity==='cafe'?'카페':tags.cuisine||'음식점';const name=tags.name.replace(/</g,'&lt;');return `<article class="place-card" data-map-index="${index}"><div class="place-top"><h3>${name}</h3><span class="price-tag tag-적정">실제 장소</span></div><p>${kind} · 해운대해수욕장 인근</p><a class="place-map-link" target="_blank" rel="noopener" href="https://map.naver.com/p/search/${encodeURIComponent('해운대 '+tags.name)}">네이버지도에서 보기</a></article>`}).join('');
-    restaurants.forEach((item,index)=>{const lat=item.lat||item.center?.lat,lon=item.lon||item.center?.lon;if(!l…615 tokens truncated…지국밥','국밥'],menu:'돼지국밥',price:9000,median:9500,status:'낮은 편'},
+    restaurants.forEach((item,index)=>{const lat=item.lat||item.center?.lat,lon=item.lon||item.center?.lon;if(!lat||!lon)return;const name=item.tags.name.replace(/</g,'&lt;');const marker=L.marker([lat,lon]).addTo(map).bindPopup(`<b>${name}</b><br>${item.tags.cuisine||'음식점'}<br><a target="_blank" rel="noopener" href="https://map.naver.com/p/search/${encodeURIComponent('해운대 '+item.tags.name)}">네이버지도에서 보기</a>`);document.querySelector(`[data-map-index="${index}"]`)?.addEventListener('click',event=>{if(event.target.tagName!=='A'){map.setView([lat,lon],17);marker.openPopup();}});});
+  }).catch(()=>{count.textContent='정보 불러오기 실패';list.innerHTML='<p class="map-loading">실시간 장소 데이터를 불러오지 못했습니다. 인터넷 연결 후 새로고침해 주세요.</p>';});
+}
+function initNearbySearch(){
+  const form=document.querySelector('#nearbySearch'); if(!form) return;
+  const restaurantIndex=[
+    {name:'오복돼지국밥',keywords:['오복','돼지국밥','국밥'],menu:'돼지국밥',price:9500,median:9500,status:'적정'},
+    {name:'아웃백스테이크하우스 해운대점',keywords:['아웃백','스테이크','아웃백스테이크'],menu:'스테이크',price:45000,median:39000,status:'높은 편'},
+    {name:'금수복국 해운대본점',keywords:['금수','복국'],menu:'복국',price:20000,median:15000,status:'높은 편'},
+    {name:'해운대기와집대구탕',keywords:['기와집','대구탕'],menu:'대구탕',price:12000,median:12000,status:'적정'},
+    {name:'해운대암소갈비집',keywords:['암소','갈비','암소갈비'],menu:'한우 갈비',price:52000,median:45000,status:'높은 편'},
+    {name:'조선대가곰탕 해운대미포점',keywords:['조선대가곰탕','대가곰탕','대가','곰탕'],menu:'한우 곰탕',price:15000,median:14000,status:'높은 편'},
+    {name:'미포집 해운대본점',keywords:['미포집','미포','해물장','솥밥'],menu:'해물장 솥밥',price:35000,median:30000,status:'높은 편'},
+    {name:'거대돼지국밥',keywords:['거대','거대국밥','돼지국밥'],menu:'돼지국밥',price:10000,median:9500,status:'적정'},
+    {name:'속씨원한대구탕 미포본점',keywords:['속씨원한','속씨원','대구탕','미포대구탕'],menu:'대구탕',price:12000,median:12000,status:'적정'},
+    {name:'해운대가야밀면',keywords:['가야밀면','가야','밀면'],menu:'밀면',price:10000,median:10000,status:'적정'},
+    {name:'형제전통돼지국밥',keywords:['형제','형제국밥','돼지국밥','국밥'],menu:'돼지국밥',price:9000,median:9500,status:'낮은 편'},
     {name:'극동돼지국밥',keywords:['극동','극동국밥','돼지국밥','국밥'],menu:'돼지국밥',price:9000,median:9500,status:'낮은 편'},
     {name:'이름난기장산곰장어',keywords:['이름난','기장산','곰장어','장어'],menu:'곰장어구이',price:35000,median:35000,status:'적정'},
     {name:'나가하마만게츠',keywords:['나가하마','만게츠','라멘'],menu:'돈코츠 라멘',price:11000,median:10000,status:'높은 편'},
@@ -144,4 +159,3 @@ function initCompactMenuFinder(){
   if(homeForm){homeForm.innerHTML=`<label class="sr-only" for="homeMenuFinder">메뉴 검색</label><input id="homeMenuFinder" type="search" placeholder="메뉴 검색"><label class="sr-only" for="homeCompactMenu">메뉴 선택</label><select id="homeCompactMenu" size="4"></select><button class="button primary" type="submit">식당 보기</button>`;installMenuFinder('homeMenuFinder','homeCompactMenu');homeForm.addEventListener('submit',e=>{e.preventDefault();const menu=document.querySelector('#homeCompactMenu').value;if(!menu)return;document.querySelector('#actualMap').src=`https://www.google.com/maps?q=${encodeURIComponent(`해운대 ${menu}`)}&output=embed`;document.querySelector('#nearbyTitle').textContent=`${menu} 추천 식당`;document.querySelector('#nearbySubtitle').textContent='대표 메뉴 가격과 적정 여부를 확인하세요';document.querySelector('#placeList').innerHTML=enhancedCards(menu);});}
 }
 initCompactMenuFinder();
-
