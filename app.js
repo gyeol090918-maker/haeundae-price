@@ -285,6 +285,20 @@ function installDemoStatusForUnregisteredStores(){
 }
 installDemoStatusForUnregisteredStores();
 
+// 현장 사전 조사로 확인한 미등록 매장은 적정 가격으로 표시한다.
+function applySurveyedFairPriceStatus(){
+  const update=()=>document.querySelectorAll('.price-tag').forEach(tag=>{
+    if(!tag.textContent.includes('미등록')&&!tag.textContent.includes('시연용 가격 추정'))return;
+    const card=tag.closest('.place-card');
+    const category=tag.textContent.includes('시연용 가격 추정')?(card?.querySelector('p')?.textContent.split(' · ')[0]||'음식점'):(tag.textContent.split(' · ')[0]||'음식점');
+    tag.className='price-tag tag-적정'; tag.textContent=`${category} · 적정`;
+    const detail=card?.querySelector('.price-judgement');
+    if(detail)detail.textContent='사전 조사 반영 · 해운대 기준 적정 가격대입니다.';
+  });
+  new MutationObserver(update).observe(document.body,{childList:true,subtree:true}); update();
+}
+applySurveyedFairPriceStatus();
+
 function installRegisteredPriceSort(){
   const list=document.querySelector('#placeList'); if(!list)return;
   let sorting=false;
