@@ -188,3 +188,10 @@ initRatingRecommendations();
 
 function simplifyNavigation(){const nav=document.querySelector('nav');if(!nav)return;nav.querySelectorAll('a[href="map.html"]').forEach(link=>link.remove());const home=nav.querySelector('a[href="index.html"]');if(home)home.textContent='지도';}
 simplifyNavigation();
+
+function osmActualCards(menu,items){return `<section class="recommendation-box actual-place-box"><h3>해운대 실제 음식점</h3><p>OpenStreetMap에 등록된 해운대 반경 3.5km 음식점입니다. 메뉴 판매 여부와 가격은 방문 전 확인하세요.</p>${items.slice(0,12).map(place=>`<article class="mini-recommendation"><div><b>${place.name}</b><span>${place.kind} · ${place.address||'해운대해수욕장 인근'}</span></div><a class="button ghost" target="_blank" rel="noopener" href="https://map.naver.com/p/search/${encodeURIComponent('해운대 '+place.name)}">지도</a></article>`).join('')}</section>`;}
+searchActualHaeundaePlaces=function(menu,target){
+  const fallback=()=>{const query='[out:json][timeout:20];(nwr["amenity"="restaurant"](around:3500,35.1587,129.1604);nwr["amenity"="fast_food"](around:3500,35.1587,129.1604););out center tags;';fetch('https://overpass-api.de/api/interpreter?data='+encodeURIComponent(query)).then(r=>r.json()).then(data=>{const items=data.elements.filter(x=>x.tags?.name).map(x=>({name:x.tags.name,kind:x.tags.cuisine||'음식점',address:x.tags['addr:street']||x.tags['addr:full']||''}));target.insertAdjacentHTML('beforeend',osmActualCards(menu,items));}).catch(()=>target.insertAdjacentHTML('beforeend','<p class="source-note">실제 매장 정보를 불러오지 못했습니다. 지도 검색 링크를 이용해 주세요.</p>'));};
+  if(!window.kakao?.maps?.services){fallback();return;}
+  const places=new kakao.maps.services.Places();places.keywordSearch(`해운대 ${menu}`,(data,status)=>{if(status===kakao.maps.services.Status.OK)target.insertAdjacentHTML('beforeend',actualKakaoPlaceCards(menu,data));else fallback();},{x:129.1604,y:35.1587,radius:3500,size:15,sort:kakao.maps.services.SortBy.DISTANCE});
+};
