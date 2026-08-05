@@ -159,3 +159,22 @@ function initCompactMenuFinder(){
   if(homeForm){homeForm.innerHTML=`<label class="sr-only" for="homeMenuFinder">메뉴 검색</label><input id="homeMenuFinder" type="search" placeholder="메뉴 검색"><label class="sr-only" for="homeCompactMenu">메뉴 선택</label><select id="homeCompactMenu" size="4"></select><button class="button primary" type="submit">식당 보기</button>`;installMenuFinder('homeMenuFinder','homeCompactMenu');homeForm.addEventListener('submit',e=>{e.preventDefault();const menu=document.querySelector('#homeCompactMenu').value;if(!menu)return;document.querySelector('#actualMap').src=`https://www.google.com/maps?q=${encodeURIComponent(`해운대 ${menu}`)}&output=embed`;document.querySelector('#nearbyTitle').textContent=`${menu} 추천 식당`;document.querySelector('#nearbySubtitle').textContent='대표 메뉴 가격과 적정 여부를 확인하세요';document.querySelector('#placeList').innerHTML=enhancedCards(menu);});}
 }
 initCompactMenuFinder();
+
+function actualKakaoPlaceCards(menu, places){
+  return `<section class="recommendation-box actual-place-box"><h3>실제 해운대 식당</h3><p>카카오맵 장소 검색 결과입니다. 메뉴·가격은 방문 전 매장 메뉴판에서 확인하세요.</p>${places.slice(0,8).map(place=>`<article class="mini-recommendation"><div><b>${place.place_name}</b><span>${place.road_address_name||place.address_name||'주소 정보 없음'}${place.distance?` · ${place.distance}m`:''}</span></div><a class="button ghost" target="_blank" rel="noopener" href="${place.place_url}">카카오맵</a></article>`).join('')}</section>`;
+}
+function searchActualHaeundaePlaces(menu, target){
+  if(!window.kakao?.maps?.services){target.insertAdjacentHTML('beforeend','<p class="source-note">실제 식당 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</p>');return;}
+  const places=new kakao.maps.services.Places();
+  places.keywordSearch(`해운대 ${menu}`, (data,status)=>{
+    if(status===kakao.maps.services.Status.OK) target.insertAdjacentHTML('beforeend',actualKakaoPlaceCards(menu,data));
+    else target.insertAdjacentHTML('beforeend','<p class="source-note">해운대 주변 실제 식당 검색 결과가 없습니다.</p>');
+  },{x:129.1604,y:35.1587,radius:3500,size:15,sort:kakao.maps.services.SortBy.DISTANCE});
+}
+function initActualKakaoPlaces(){
+  const homeForm=document.querySelector('#nearbySearch');
+  if(homeForm){homeForm.addEventListener('submit',()=>{const menu=document.querySelector('#homeCompactMenu')?.value;if(menu){const list=document.querySelector('#placeList');setTimeout(()=>searchActualHaeundaePlaces(menu,list),0);}});}
+  const priceForm=document.querySelector('#priceForm');
+  if(priceForm){priceForm.addEventListener('submit',()=>{const menu=document.querySelector('#compactMenu')?.value;if(menu){const result=document.querySelector('#resultContent');setTimeout(()=>searchActualHaeundaePlaces(menu,result),0);}});}
+}
+initActualKakaoPlaces();
