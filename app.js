@@ -205,6 +205,18 @@ nearbyByPrice=function(menu,target){const matches=realHaeundaeStores.filter(s=>s
 function initHomeStoreList(){const list=document.querySelector('#placeList');if(!list)return;list.innerHTML=storeCards();const title=document.querySelector('#nearbyTitle');const sub=document.querySelector('#nearbySubtitle');if(title)title.textContent='실제 인근 식당';if(sub)sub.textContent=`해운대 인근 실제 매장 ${realHaeundaeStores.length}곳`;}
 initHomeStoreList();
 
+/* 메뉴를 검색하면 첫 결과를 자동 선택해, 가격 비교 버튼이 빈 값으로 끝나지 않게 한다. */
+Object.assign(translations.ko, {navMap:'지도 · 리뷰'});
+if (currentLanguage === 'ko') document.querySelectorAll('nav a[href="map.html"]').forEach(link => { link.textContent = '지도 · 리뷰'; });
+['menuFinder','homeMenuFinder'].forEach(searchId => {
+  const search = document.querySelector('#' + searchId);
+  const select = document.querySelector(searchId === 'menuFinder' ? '#compactMenu' : '#homeCompactMenu');
+  if (!search || !select) return;
+  const chooseFirst = () => { if (!select.value && select.options.length) select.selectedIndex = 0; };
+  chooseFirst();
+  search.addEventListener('input', chooseFirst);
+});
+
 // 가격 비교 화면에서는 임시 추천 상호 대신 실제 장소 검색 결과만 보여준다.
 searchActualHaeundaePlaces=function(){};
 function initActualPriceRecommendations(){
