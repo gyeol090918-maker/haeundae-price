@@ -186,7 +186,7 @@ function ratingCards(menu){const places=(enhancedRecommendations[menu]||[[`해�
 function initRatingRecommendations(){const form=document.querySelector('#priceForm');if(form)form.addEventListener('submit',()=>{const menu=document.querySelector('#compactMenu')?.value;if(menu)setTimeout(()=>document.querySelector('#resultContent')?.insertAdjacentHTML('beforeend',ratingCards(menu)),50);});const lang=document.querySelector('.language');lang?.addEventListener('change',()=>setTimeout(()=>{['compactMenu','homeCompactMenu'].forEach(id=>{const select=document.querySelector('#'+id);if(select)select.innerHTML=groupedOptions();});},0));}
 initRatingRecommendations();
 
-function simplifyNavigation(){const nav=document.querySelector('nav');if(!nav)return;nav.querySelectorAll('a[href="map.html"]').forEach(link=>link.remove());const home=nav.querySelector('a[href="index.html"]');if(home)home.textContent='지도';}
+function simplifyNavigation(){/* 모든 페이지에서 홈 · 가격 비교 · 지도·리뷰 메뉴를 유지한다. */}
 simplifyNavigation();
 
 function osmActualCards(menu,items){return `<section class="recommendation-box actual-place-box"><h3>해운대 실제 음식점</h3><p>OpenStreetMap에 등록된 해운대 반경 3.5km 음식점입니다. 메뉴 판매 여부와 가격은 방문 전 확인하세요.</p>${items.slice(0,12).map(place=>`<article class="mini-recommendation"><div><b>${place.name}</b><span>${place.kind} · ${place.address||'해운대해수욕장 인근'}</span></div><a class="button ghost" target="_blank" rel="noopener" href="https://map.naver.com/p/search/${encodeURIComponent('해운대 '+place.name)}">지도</a></article>`).join('')}</section>`;}
@@ -314,11 +314,8 @@ function priceRangeStatus(menu, price) {
 
 function priceRangeCards(menu, target) {
   const exact = priceRangeStores.filter(store => store.menu === menu);
-  const similar = exact.length ? exact : priceRangeStores
-    .filter(store => Math.abs(store.price - target) <= Math.max(target * 0.25, 5000));
-  if (!similar.length) {
-    return '<p class="source-note">이 메뉴는 아직 비교 가능한 매장 가격이 충분하지 않습니다. 메뉴 가격을 추가 확인한 뒤 추천에 반영할 수 있어요.</p>';
-  }
+  // 해당 메뉴의 등록 가격이 없더라도, 빈 화면 대신 입력 금액과 가까운 모든 등록 가격을 추천한다.
+  const similar = exact.length ? exact : priceRangeStores;
   return similar.slice().sort((a,b) => Math.abs(a.price-target) - Math.abs(b.price-target)).slice(0,5).map(store => {
     const [state, tag] = priceRangeStatus(store.menu, store.price);
     const gap = Math.abs(store.price-target);
