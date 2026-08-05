@@ -224,7 +224,10 @@ function initHomeRestaurantNameSearch(){
     const matches=realHaeundaeStores.filter(store=>[store[0],store[1]].some(value=>{const haystack=compact(value);return haystack.includes(needle)||subsequence(needle,haystack);}));
     const title=document.querySelector('#nearbyTitle');
     const sub=document.querySelector('#nearbySubtitle');
-    const list=document.querySelector('#placeList');
+    let list=document.querySelector('#placeList');
+    const isolatedList=list.cloneNode(false);
+    list.replaceWith(isolatedList);
+    list=isolatedList;
     document.querySelector('#actualMap').src=`https://www.google.com/maps?q=${encodeURIComponent('해운대 '+query)}&output=embed`;
     title.textContent=`“${query}” 검색 결과`;
     sub.textContent=matches.length?`${matches.length}개 실제 인근 식당을 찾았습니다`:'등록 목록에서 찾지 못했습니다. 지도 검색 결과를 확인해 주세요.';
