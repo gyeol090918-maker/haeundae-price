@@ -217,6 +217,48 @@ if (currentLanguage === 'ko') document.querySelectorAll('nav a[href="map.html"]'
   search.addEventListener('input', chooseFirst);
 });
 
+/* 가격 비교 메뉴와 분류를 4개 언어로 동일하게 표시한다. */
+const completeMenuTranslations = {
+  en:{'돼지국밥':'Pork soup with rice','소고기국밥':'Beef soup with rice','곰탕':'Beef bone soup','복국':'Pufferfish soup','대구탕':'Cod soup','밀면':'Wheat noodles (Milmyeon)','비빔밀면':'Spicy mixed Milmyeon','냉면':'Cold noodles','비빔밥':'Bibimbap','김치찌개':'Kimchi stew','된장찌개':'Soybean paste stew','해물순두부':'Seafood soft tofu stew','짜장면':'Black bean noodles','짬뽕':'Spicy seafood noodles','탕수육':'Sweet and sour pork','삼겹살':'Pork belly','갈비탕':'Beef rib soup','한우갈비':'Korean beef ribs','치킨':'Fried chicken','피자':'Pizza','회덮밥':'Raw fish rice bowl','물회':'Chilled raw fish soup','생선구이':'Grilled fish','해물라면':'Seafood ramen','모둠회 2인':'Assorted sashimi (2 people)','광어회 2인':'Flatfish sashimi (2 people)','연어회 2인':'Salmon sashimi (2 people)','참돔회 2인':'Red sea bream sashimi (2 people)','새우구이 2인':'Grilled shrimp (2 people)','대하구이 2인':'Grilled king prawns (2 people)','새우튀김':'Fried shrimp','새우장':'Soy-marinated shrimp','조개구이 2인':'Grilled clams (2 people)','해물찜 2인':'Braised seafood (2 people)','해물탕 2인':'Seafood hot pot (2 people)','전복죽':'Abalone porridge','전복구이':'Grilled abalone','꽃게탕 2인':'Blue crab stew (2 people)','간장게장':'Soy-marinated crab','장어구이 2인':'Grilled eel (2 people)'},
+  ja:{'돼지국밥':'豚クッパ','소고기국밥':'牛肉クッパ','곰탕':'コムタン','복국':'フグスープ','대구탕':'タラ鍋','밀면':'ミルミョン','비빔밀면':'ビビンミルミョン','냉면':'冷麺','비빔밥':'ビビンバ','김치찌개':'キムチチゲ','된장찌개':'テンジャンチゲ','해물순두부':'海鮮スンドゥブ','짜장면':'ジャージャー麺','짬뽕':'チャンポン','탕수육':'酢豚','삼겹살':'サムギョプサル','갈비탕':'カルビタン','한우갈비':'韓牛カルビ','치킨':'フライドチキン','피자':'ピザ','회덮밥':'刺身丼','물회':'水刺身','생선구이':'焼き魚','해물라면':'海鮮ラーメン','모둠회 2인':'刺身盛り合わせ（2人）','광어회 2인':'ヒラメ刺身（2人）','연어회 2인':'サーモン刺身（2人）','참돔회 2인':'マダイ刺身（2人）','새우구이 2인':'焼きエビ（2人）','대하구이 2인':'焼きクルマエビ（2人）','새우튀김':'エビフライ','새우장':'エビの醤油漬け','조개구이 2인':'焼き貝（2人）','해물찜 2인':'海鮮蒸し煮（2人）','해물탕 2인':'海鮮鍋（2人）','전복죽':'アワビ粥','전복구이':'焼きアワビ','꽃게탕 2인':'ワタリガニ鍋（2人）','간장게장':'ワタリガニの醤油漬け','장어구이 2인':'うなぎ蒲焼き（2人）'},
+  zh:{'돼지국밥':'猪肉汤饭','소고기국밥':'牛肉汤饭','곰탕':'牛骨汤','복국':'河豚汤','대구탕':'鳕鱼汤','밀면':'小麦冷面','비빔밀면':'拌小麦冷面','냉면':'冷面','비빔밥':'石锅拌饭','김치찌개':'泡菜汤','된장찌개':'大酱汤','해물순두부':'海鲜嫩豆腐汤','짜장면':'炸酱面','짬뽕':'海鲜辣汤面','탕수육':'糖醋肉','삼겹살':'五花肉','갈비탕':'牛排骨汤','한우갈비':'韩牛排骨','치킨':'炸鸡','피자':'披萨','회덮밥':'生鱼片拌饭','물회':'冷拌生鱼片汤','생선구이':'烤鱼','해물라면':'海鲜拉面','모둠회 2인':'刺身拼盘（2人）','광어회 2인':'比目鱼刺身（2人）','연어회 2인':'三文鱼刺身（2人）','참돔회 2인':'真鲷刺身（2人）','새우구이 2인':'烤虾（2人）','대하구이 2인':'烤大虾（2人）','새우튀김':'炸虾','새우장':'酱油腌虾','조개구이 2인':'烤贝类（2人）','해물찜 2인':'海鲜炖菜（2人）','해물탕 2인':'海鲜锅（2人）','전복죽':'鲍鱼粥','전복구이':'烤鲍鱼','꽃게탕 2인':'梭子蟹汤（2人）','간장게장':'酱油蟹','장어구이 2인':'烤鳗鱼（2人）'}
+};
+const groupTranslations = {en:{'면류':'Noodles','밥·국밥류':'Rice & soup','구이·고기류':'Grilled meat','회·해산물':'Sashimi & seafood','새우 메뉴':'Shrimp dishes','기타':'Other'},ja:{'면류':'麺類','밥·국밥류':'ご飯・スープ','구이·고기류':'焼肉・肉類','회·해산물':'刺身・海鮮','새우 메뉴':'エビ料理','기타':'その他'},zh:{'면류':'面类','밥·국밥류':'饭类·汤饭','구이·고기류':'烤肉类','회·해산물':'生鱼片·海鲜','새우 메뉴':'虾类','기타':'其他'}};
+function translatedMenu(menu){ return completeMenuTranslations[currentLanguage]?.[menu] || menu; }
+groupedOptions = function(keyword='') {
+  const q = keyword.trim().toLowerCase();
+  return Object.entries(menuGroups).map(([group,menus]) => {
+    const matched = menus.filter(menu => (menu + ' ' + translatedMenu(menu)).toLowerCase().includes(q));
+    const label = groupTranslations[currentLanguage]?.[group] || group;
+    return matched.length ? `<optgroup label="${label}">${matched.map(menu => `<option value="${menu}">${translatedMenu(menu)}</option>`).join('')}</optgroup>` : '';
+  }).join('');
+};
+function translatePriceComparisonForm(){
+  const form=document.querySelector('#priceForm'); if(!form) return;
+  const labelText={ko:['메뉴 검색','메뉴 선택','메뉴 1인분 가격','가격 비교하기','음식 종류별로 나뉜 목록을 스크롤하거나 검색해서 고르세요.'],en:['Search menu','Select menu','Price per serving','Compare price','Search or scroll the categorized menu list.'],ja:['メニューを検索','メニューを選択','1人前の価格','価格を比較','カテゴリ別のメニューを検索またはスクロールして選んでください。'],zh:['搜索菜单','选择菜单','每份价格','比较价格','可搜索或滚动分类菜单列表进行选择。']}[currentLanguage]||[];
+  const labels=form.querySelectorAll('label'); labels.forEach((label,i)=>{if(labelText[i])label.textContent=labelText[i];});
+  const help=form.querySelector('.menu-help'); if(help)help.textContent=labelText[4];
+  const button=form.querySelector('button[type="submit"]'); if(button)button.textContent=labelText[3];
+  const finder=form.querySelector('#menuFinder'); if(finder)finder.placeholder={ko:'예: 물회, 새우, 국밥',en:'e.g. sashimi, shrimp, soup',ja:'例：刺身、エビ、クッパ',zh:'例如：生鱼片、虾、汤饭'}[currentLanguage];
+  const select=form.querySelector('#compactMenu'); if(select){const selected=select.value;select.innerHTML=groupedOptions(finder?.value||'');if([...select.options].some(option=>option.value===selected))select.value=selected;else if(select.options.length)select.selectedIndex=0;}
+}
+translatePriceComparisonForm();
+document.querySelector('.language')?.addEventListener('change',()=>setTimeout(translatePriceComparisonForm,0));
+
+const pricePageCopy={en:{fair:'Fair price',high:'High price',low:'Lower price',vs:'Compared with the Haeundae median, it is',higher:'higher',lower:'lower',input:'Entered menu price',median:'Haeundae median',recommend:'Similar-price restaurant recommendations',based:'Closest registered menu prices to your entered amount.',source:'Price source',gap:'difference from entered price',note:'Prices are reference values based on public menus. Please check the current menu before visiting.'},ja:{fair:'適正価格',high:'高め',low:'低め',vs:'海雲台の中央値と比べて',higher:'高い',lower:'低い',input:'入力したメニュー価格',median:'海雲台の中央値',recommend:'近い価格帯の飲食店おすすめ',based:'入力価格に近い登録メニュー価格順です。',source:'価格出典',gap:'入力価格との差',note:'公開メニューに基づく参考価格です。訪問前に最新メニューをご確認ください。'},zh:{fair:'价格合理',high:'价格偏高',low:'价格偏低',vs:'与海云台中位数相比',higher:'更高',lower:'更低',input:'输入的菜单价格',median:'海云台中位数',recommend:'相近价格餐厅推荐',based:'按与输入价格最接近的已登记菜单价格排序。',source:'价格来源',gap:'与输入价格差额',note:'价格为参考值，基于公开菜单。到店前请确认最新菜单。'}};
+function renderTranslatedPriceResult(){
+  if(currentLanguage==='ko')return;
+  const menu=document.querySelector('#compactMenu')?.value, price=Number(document.querySelector('#compactPrice')?.value), result=document.querySelector('#resultContent');
+  if(!menu||!price||!result)return;
+  const copy=pricePageCopy[currentLanguage], median=enhancedMenus[menu], diff=price-median, pct=Math.abs(diff/median*100);
+  const state=price>median*1.2?copy.high:price<median*.8?copy.low:copy.fair;
+  const tag=price>median*1.2?'tag-주의':price<median*.8?'tag-낮음':'tag-적정';
+  const exact=priceRangeStores.filter(store=>store.menu===menu), stores=(exact.length?exact:priceRangeStores).slice().sort((a,b)=>Math.abs(a.price-price)-Math.abs(b.price-price)).slice(0,5);
+  const cards=stores.map(store=>`<article class="mini-recommendation"><div><b>${store.name}</b><span>${translatedMenu(store.menu)} · ${won(store.price)} · ${won(Math.abs(store.price-price))} ${copy.gap}</span><small>${copy.source}: ${store.source}</small></div><em class="price-tag ${tag}">${state}</em></article>`).join('');
+  result.innerHTML=`<div class="result-summary"><span class="status ${tag==='tag-주의'?'high':tag==='tag-낮음'?'warn':'ok'}">${state}</span><h2>${translatedMenu(menu)} ${won(price)}</h2><p>${copy.vs} <b>${pct.toFixed(1)}% ${diff>=0?copy.higher:copy.lower}</b>.</p></div><div class="result-numbers"><div><span>${copy.input}</span><b>${won(price)}</b></div><div><span>${copy.median}</span><b>${won(median)}</b></div></div><section class="recommendation-box"><h3>${copy.recommend}</h3><p>${copy.based}</p>${cards}<small>${copy.note}</small></section>`;
+}
+document.querySelector('#priceForm')?.addEventListener('submit',()=>setTimeout(renderTranslatedPriceResult,700));
+
 // 가격 비교 화면에서는 임시 추천 상호 대신 실제 장소 검색 결과만 보여준다.
 searchActualHaeundaePlaces=function(){};
 function initActualPriceRecommendations(){
