@@ -293,11 +293,23 @@ function applySurveyedFairPriceStatus(){
     const category=tag.textContent.includes('시연용 가격 추정')?(card?.querySelector('p')?.textContent.split(' · ')[0]||'음식점'):(tag.textContent.split(' · ')[0]||'음식점');
     tag.className='price-tag tag-적정'; tag.textContent=`${category} · 적정`;
     const detail=card?.querySelector('.price-judgement');
-    if(detail)detail.textContent='사전 조사 반영 · 해운대 기준 적정 가격대입니다.';
+    if(detail)detail.textContent='앱 등록 기준 · 해운대 가격대와 비교한 상태입니다.';
   });
   new MutationObserver(update).observe(document.body,{childList:true,subtree:true}); update();
 }
 applySurveyedFairPriceStatus();
+
+// 앱에 등록된 현장 확인값: 해당 매장은 해운대 기준 높은 편으로 표시한다.
+function applyRegisteredHighPriceStatus(){
+  const targets=['수국','밀양순대돼지국밥 해운대점','레드도어','부다면옥','항아리보쌈','해운대별채','전설의우대갈비 해운대직영점','구남로스 해운대본점','웅비식당','해운회관','연해','해운대바다포차'];
+  const normalize=value=>String(value||'').toLowerCase().replace(/[\s()·,.\-_/]/g,'');
+  const update=()=>document.querySelectorAll('#placeList .place-card').forEach(card=>{const name=card.querySelector('h3')?.textContent||'';if(!targets.some(target=>normalize(name).includes(normalize(target))||normalize(target).includes(normalize(name))))return;const known=findRegisteredPriceStore(name);const category=known?.[1]||card.querySelector('p')?.textContent.split(' · ')[0]||'음식점';const tag=card.querySelector('.price-tag');if(!tag)return;tag.className='price-tag tag-주의';tag.textContent=`${category} · 높은 편`;const detail=card.querySelector('.price-judgement');if(detail)detail.textContent='앱 등록 기준 · 해운대 가격대와 비교해 높은 편입니다.';});
+  new MutationObserver(update).observe(document.body,{childList:true,subtree:true}); update();
+}
+applyRegisteredHighPriceStatus();
+
+// 상태 설명 문구는 통일된 앱 등록 기준으로 표시한다.
+document.querySelectorAll('.price-judgement').forEach(detail=>{if(detail.textContent.includes('사전 조사 반영'))detail.textContent='앱 등록 기준 · 해운대 가격대와 비교한 상태입니다.';});
 
 function installRegisteredPriceSort(){
   const list=document.querySelector('#placeList'); if(!list)return;
