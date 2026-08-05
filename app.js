@@ -451,6 +451,10 @@ function installPriceRangeOnlyRecommendation() {
 }
 installPriceRangeOnlyRecommendation();
 
+// 첫 화면은 등록 식당만 즉시 표시한다. 대량의 추가 매장 요청은 새로고침 속도를 늦추므로 보류한다.
+const homepageFetch=window.fetch.bind(window);
+window.fetch=(resource,...options)=>{const url=typeof resource==='string'?resource:resource?.url||'';if(url.includes('overpass-api.de/api/interpreter')&&url.includes('timeout%3A25'))return Promise.resolve({ok:true,json:()=>Promise.resolve({elements:[]})});return homepageFetch(resource,...options);};
+
 initHomeStoreList=function(){const list=document.querySelector('#placeList');if(!list)return;list.innerHTML=storeCards();const title=document.querySelector('#nearbyTitle');const sub=document.querySelector('#nearbySubtitle');if(title)title.textContent='실제 인근 식당';if(sub)sub.textContent=`대표 실제 매장 ${realHaeundaeStores.length}곳 · 추가 매장 불러오는 중`;
 const query='[out:json][timeout:25];(nwr["amenity"="restaurant"](around:5000,35.1587,129.1604);nwr["amenity"="fast_food"](around:5000,35.1587,129.1604);nwr["amenity"="cafe"](around:5000,35.1587,129.1604););out center tags;';fetch('https://overpass-api.de/api/interpreter?data='+encodeURIComponent(query)).then(r=>r.json()).then(data=>{const known=new Set(realHaeundaeStores.map(s=>s[0]));const extra=data.elements.filter(x=>x.tags?.name&&!known.has(x.tags.name)).slice(0,45);list.insertAdjacentHTML('beforeend',extra.map(x=>{const name=x.tags.name.replace(/</g,'&lt;');const kind=x.tags.cuisine||(x.tags.amenity==='cafe'?'카페':'음식점');return `<article class="place-card search-result-card"><div class="place-top"><h3>${name}</h3><span class="price-tag tag-적정">실제 장소</span></div><p>${kind} · 해운대 반경 5km</p><a class="place-map-link" target="_blank" rel="noopener" href="https://map.naver.com/p/search/${encodeURIComponent('해운대 '+x.tags.name)}">지도에서 보기 →</a></article>`;}).join(''));if(sub)sub.textContent=`해운대 인근 실제 매장 ${realHaeundaeStores.length+extra.length}곳`;}).catch(()=>{if(sub)sub.textContent=`대표 실제 매장 ${realHaeundaeStores.length}곳`;});};
 initHomeStoreList();
