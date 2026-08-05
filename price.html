@@ -1,20 +1,26 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="ko">
-<head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>媛寃?鍮꾧탳 | 硫붾돱媛</title><link rel="stylesheet" href="styles.css?v=20260805-price-status-gray" /></head>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>가격 비교 | 해운대 얼마냥</title>
+  <link rel="stylesheet" href="styles.css?v=20260805-price-recovery">
+</head>
 <body>
-  <header class="site-header"><a class="brand logo-brand" href="index.html"><img src="logo.png" alt="?댁슫? ?쇰쭏?? /></a><nav><a href="index.html" data-i18n="navHome">??/a><a class="active" href="price.html" data-i18n="navPrice">媛寃?鍮꾧탳</a><a href="map.html" data-i18n="navMap">由щ럭</a></nav><select class="language" aria-label="?몄뼱 ?좏깮"><option value="ko">?쒓뎅??/option><option value="en">English</option><option value="ja">?ζ쑍沃?/option><option value="zh">訝?뻼</option></select></header>
+  <header class="site-header">
+    <a class="brand logo-brand" href="index.html"><img src="logo.png" alt="해운대 얼마냥"></a>
+    <nav><a href="index.html" data-i18n="navHome">홈</a><a class="active" href="price.html" data-i18n="navPrice">가격 비교</a><a href="map.html" data-i18n="navMap">지도 · 리뷰</a></nav>
+    <select class="language" aria-label="언어 선택"><option value="ko">한국어</option><option value="en">English</option><option value="ja">日本語</option><option value="zh">中文</option></select>
+  </header>
   <main class="page-shell">
-    <div class="page-intro"><p class="eyebrow">PRICE CHECK</p><h1 data-i18n="priceTitle">?댁슫? 硫붾돱 媛寃?鍮꾧탳</h1><p data-i18n="priceDesc">?꾩옱 媛寃⑹쓣 ?낅젰?섎㈃ ?댁슫? 以묒븰媛?諛??꾧뎅 ?몄떇鍮??됯퇏怨?鍮꾧탳?⑸땲??</p></div>
+    <div class="page-intro"><p class="eyebrow">PRICE CHECK</p><h1 data-i18n="priceTitle">해운대 메뉴 가격 비교</h1><p data-i18n="priceDesc">현재 가격을 입력하면 해운대 중앙값과 비교합니다.</p></div>
     <section class="comparison-layout">
-      <form class="calculator-card" id="priceForm">
-        <label for="menuSearch" data-i18n="menuLabel">硫붾돱 寃??/label><input id="menuSearch" list="menuSuggestions" placeholder="硫붾돱紐낆쓣 寃?됲븯?몄슂" autocomplete="off" /><datalist id="menuSuggestions"></datalist><select id="menu" hidden></select>
-        <label for="price" data-i18n="currentPrice">?꾩옱 硫붾돱 媛寃?/label><div class="price-input"><input id="price" type="number" min="0" placeholder="?? 15000" /><span>??/span></div>
-        <button class="button primary full" type="submit" data-i18n="checkPrice">?곸젙 媛寃??뺤씤</button>
-        <p class="form-note" data-i18n="formNote">?꾧뎅 ?됯퇏? 16媛?吏???몄떇鍮??됯퇏 ?먮즺瑜?李멸퀬?덉뒿?덈떎.</p>
-      </form>
-      <section class="result-card" aria-live="polite"><p class="eyebrow">PRICE RESULT</p><div id="resultEmpty"><h2 data-i18n="emptyTitle">媛寃⑹쓣 ?낅젰??二쇱꽭??</h2><p data-i18n="emptyDesc">?낅젰??媛寃⑹씠 ?대뒓 踰붿쐞???덈뒗吏 ?뚮젮?쒕┰?덈떎.</p></div><div id="resultContent" hidden></div></section>
+      <form class="calculator-card" id="priceForm"></form>
+      <section class="result-card" aria-live="polite"><p class="eyebrow">PRICE RESULT</p><div id="resultEmpty"><h2 data-i18n="emptyTitle">가격을 입력해 주세요.</h2><p data-i18n="emptyDesc">입력한 가격이 어느 범위에 있는지 알려드립니다.</p></div><div id="resultContent" hidden></div></section>
     </section>
-</main><footer data-i18n="footerPrice">짤 硫붾돱媛 쨌 媛寃⑹? 李멸퀬 ?뺣낫?대ŉ 硫붾돱 援ъ꽦쨌?뫢룹텛媛?붽툑???곕씪 ?щ씪吏????덉뒿?덈떎.</footer><script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=11bd66684ae7b1cc117440ee61e52e2c&libraries=services"></script><script src="app.js?v=20260805-navbar-price-range-fix"></script>
-</body></html>
-
-
+  </main>
+  <footer data-i18n="footerPrice">© 메뉴가 · 가격은 참고 정보이며 메뉴 구성·양·추가요금에 따라 달라질 수 있습니다.</footer>
+  <script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=11bd66684ae7b1cc117440ee61e52e2c&libraries=services"></script>
+  <script src="app.js?v=20260805-price-recovery"></script>
+</body>
+</html>
