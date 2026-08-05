@@ -216,14 +216,20 @@ function initHomeRestaurantNameSearch(){
   const compact=text=>String(text).replace(/\s/g,'').toLowerCase();
   const subsequence=(needle,haystack)=>{let index=0;for(const letter of haystack){if(letter===needle[index])index++;if(index===needle.length)return true;}return false;};
   const cards=stores=>stores.map(([name,menu,price,rating])=>{const [state,tag]=storeStatus(menu,price);return `<article class="place-card search-result-card"><div class="place-top"><h3>${name}</h3><span class="price-tag ${tag}">${menu} · ${state}</span></div><p>대표 메뉴 ${won(price)} · ★ ${rating.toFixed(1)}</p><p class="price-judgement">해운대 ${menu} 중앙값과 비교해 <b>${state}</b>입니다.</p><a class="place-map-link" target="_blank" rel="noopener" href="https://map.naver.com/p/search/${encodeURIComponent('해운대 '+name)}">지도에서 보기 →</a></article>`;}).join('');
+  const mapSearchFallback={
+    '곰탕':['미가곰탕','유가네한우곰탕 재송센터점','서울깍두기 센텀본점','거대곰탕센텀시티점','조선대가곰탕 해운대미포점','세실곰탕','이카네설렁탕']
+  };
+  const mapCards=places=>places.map(name=>`<article class="place-card search-result-card"><div class="place-top"><h3>${name}</h3><span class="price-tag tag-적정">실제 장소</span></div><p>곰탕 · 해운대 인근</p><p class="price-judgement">지도 검색 결과를 바탕으로 한 대표 장소입니다.</p><a class="place-map-link" target="_blank" rel="noopener" href="https://map.naver.com/p/search/${encodeURIComponent('해운대 '+name)}">지도에서 보기 →</a></article>`).join('');
   form.addEventListener('submit',event=>{
     event.preventDefault();
     const query=document.querySelector('#homeRestaurantFinder').value.trim();
     if(!query){initHomeStoreList();return;}
     const needle=compact(query);
     const matches=realHaeundaeStores.filter(store=>[store[0],store[1]].some(value=>{const haystack=compact(value);return haystack.includes(needle)||subsequence(needle,haystack);}));
-    const title=document.querySelector('#nearbyTitle');
-    const sub=document.querySelector('#nearbySubtitle');
+    let title=document.querySelector('#nearbyTitle');
+    let sub=document.querySelector('#nearbySubtitle');
+    const isolatedTitle=title.cloneNode(false),isolatedSub=sub.cloneNode(false);
+    title.replaceWith(isolatedTitle);sub.replaceWith(isolatedSub);title=isolatedTitle;sub=isolatedSub;
     let list=document.querySelector('#placeList');
     const isolatedList=list.cloneNode(false);
     list.replaceWith(isolatedList);
@@ -232,6 +238,8 @@ function initHomeRestaurantNameSearch(){
     title.textContent=`“${query}” 검색 결과`;
     sub.textContent=matches.length?`${matches.length}개 실제 인근 식당을 찾았습니다`:'등록 목록에서 찾지 못했습니다. 지도 검색 결과를 확인해 주세요.';
     list.innerHTML=matches.length?cards(matches):`<article class="place-card search-result-card"><div class="place-top"><h3>${query.replace(/</g,'&lt;')}</h3><span class="price-tag tag-적정">검색 결과 없음</span></div><p>등록된 대표 목록에는 없지만, 위 지도에서 실제 장소를 검색했습니다.</p></article>`;
+    const fallbackPlaces=mapSearchFallback[query];
+    if(!matches.length&&fallbackPlaces){title.textContent=`“${query}” 실제 인근 식당`;sub.textContent=`지도 검색 결과 대표 식당 ${fallbackPlaces.length}곳`;list.innerHTML=mapCards(fallbackPlaces);}
     if(window.kakao?.maps?.services){
       sub.textContent='실제 지도 등록 식당을 찾는 중입니다…';
       const places=new kakao.maps.services.Places();
