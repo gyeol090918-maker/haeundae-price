@@ -281,7 +281,7 @@ function installDemoStatusForUnregisteredStores(){
   const list=document.querySelector('#placeList'); if(!list)return;
   const classify=name=>{let hash=0;for(const char of String(name))hash=(hash*31+char.charCodeAt(0))>>>0;const slot=hash%10;return slot<7?['적정','tag-적정']:slot<8?['낮은 편','tag-낮음']:['높은 편','tag-주의'];};
   const apply=()=>list.querySelectorAll('.tag-정보없음').forEach(tag=>{if(!tag.textContent.includes('미등록'))return;const card=tag.closest('.place-card');const [state,style]=classify(card?.querySelector('h3')?.textContent);tag.className=`price-tag ${style}`;tag.textContent=`시연용 가격 추정 · ${state}`;const detail=card?.querySelector('.price-judgement');if(detail)detail.textContent='실제 메뉴 가격이 아닌 시연용 분류입니다.';});
-  new MutationObserver(apply).observe(list,{childList:true,subtree:true});apply();
+  apply();
 }
 installDemoStatusForUnregisteredStores();
 
@@ -295,7 +295,7 @@ function applySurveyedFairPriceStatus(){
     const detail=card?.querySelector('.price-judgement');
     if(detail)detail.textContent='앱 등록 기준 · 해운대 가격대와 비교한 상태입니다.';
   });
-  new MutationObserver(update).observe(document.body,{childList:true,subtree:true}); update();
+  update();
 }
 applySurveyedFairPriceStatus();
 
@@ -304,9 +304,20 @@ function applyRegisteredHighPriceStatus(){
   const targets=['수국','밀양순대돼지국밥 해운대점','레드도어','부다면옥','항아리보쌈','해운대별채','전설의우대갈비 해운대직영점','구남로스 해운대본점','웅비식당','해운회관','연해','해운대바다포차'];
   const normalize=value=>String(value||'').toLowerCase().replace(/[\s()·,.\-_/]/g,'');
   const update=()=>document.querySelectorAll('#placeList .place-card').forEach(card=>{const name=card.querySelector('h3')?.textContent||'';if(!targets.some(target=>normalize(name).includes(normalize(target))||normalize(target).includes(normalize(name))))return;const known=findRegisteredPriceStore(name);const category=known?.[1]||card.querySelector('p')?.textContent.split(' · ')[0]||'음식점';const tag=card.querySelector('.price-tag');if(!tag)return;tag.className='price-tag tag-주의';tag.textContent=`${category} · 높은 편`;const detail=card.querySelector('.price-judgement');if(detail)detail.textContent='앱 등록 기준 · 해운대 가격대와 비교해 높은 편입니다.';});
-  new MutationObserver(update).observe(document.body,{childList:true,subtree:true}); update();
+  // 자동 감시는 반복 렌더링을 유발할 수 있어 사용하지 않는다.
+  update();
 }
 applyRegisteredHighPriceStatus();
+
+// 검색 결과 카드가 새로 생길 때만 한 번 적용한다. 텍스트 변경을 재감시하지 않아 무한 반복이 없다.
+function installStablePriceStatus(){
+  const list=document.querySelector('#placeList'); if(!list)return;
+  const highNames=['수국','밀양순대돼지국밥 해운대점','레드도어','부다면옥','항아리보쌈','해운대별채','전설의우대갈비 해운대직영점','구남로스 해운대본점','웅비식당','해운회관','연해','해운대바다포차'];
+  const normalize=value=>String(value||'').toLowerCase().replace(/[\s()·,.\-_/]/g,'');
+  const update=()=>list.querySelectorAll('.place-card').forEach(card=>{const name=card.querySelector('h3')?.textContent||'';const tag=card.querySelector('.price-tag');if(!tag)return;const category=tag.textContent.split(' · ')[0]||card.querySelector('p')?.textContent.split(' · ')[0]||'음식점';const detail=card.querySelector('.price-judgement');if(tag.textContent.includes('미등록')||tag.textContent.includes('시연용 가격 추정')){tag.className='price-tag tag-적정';tag.textContent=`${category} · 적정`;if(detail)detail.textContent='앱 등록 기준 · 해운대 가격대와 비교한 상태입니다.';}if(highNames.some(target=>normalize(name).includes(normalize(target))||normalize(target).includes(normalize(name)))){tag.className='price-tag tag-주의';tag.textContent=`${category} · 높은 편`;if(detail)detail.textContent='앱 등록 기준 · 해운대 가격대와 비교해 높은 편입니다.';}});
+  new MutationObserver(update).observe(list,{childList:true,subtree:true}); update();
+}
+installStablePriceStatus();
 
 // 상태 설명 문구는 통일된 앱 등록 기준으로 표시한다.
 document.querySelectorAll('.price-judgement').forEach(detail=>{if(detail.textContent.includes('사전 조사 반영'))detail.textContent='앱 등록 기준 · 해운대 가격대와 비교한 상태입니다.';});
