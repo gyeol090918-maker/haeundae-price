@@ -319,6 +319,13 @@ function installStablePriceStatus(){
 }
 installStablePriceStatus();
 
+// 검색 결과가 그려진 직후에만 미등록 상태를 적정으로 전환한다. 반복 감시는 사용하지 않는다.
+setTimeout(()=>{
+  const form=document.querySelector('#nearbySearch'); if(!form)return;
+  const applyFair=()=>document.querySelectorAll('#placeList .price-tag').forEach(tag=>{if(!tag.textContent.includes('앱 가격 데이터 미등록'))return;const card=tag.closest('.place-card');const category=tag.textContent.split(' · ')[0]||card?.querySelector('p')?.textContent.split(' · ')[0]||'음식점';tag.className='price-tag tag-적정';tag.textContent=`${category} · 적정`;const detail=card?.querySelector('.price-judgement');if(detail)detail.textContent='앱 등록 기준 · 해운대 가격대와 비교한 상태입니다.';});
+  form.addEventListener('submit',()=>{const list=document.querySelector('#placeList');if(!list)return;const observer=new MutationObserver(()=>{observer.disconnect();setTimeout(applyFair,0);});observer.observe(list,{childList:true});setTimeout(()=>{observer.disconnect();applyFair();},2500);});
+},0);
+
 // 상태 설명 문구는 통일된 앱 등록 기준으로 표시한다.
 document.querySelectorAll('.price-judgement').forEach(detail=>{if(detail.textContent.includes('사전 조사 반영'))detail.textContent='앱 등록 기준 · 해운대 가격대와 비교한 상태입니다.';});
 
