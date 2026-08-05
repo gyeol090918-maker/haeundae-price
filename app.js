@@ -272,6 +272,15 @@ function installRegisteredPriceSearch(){
 }
 installRegisteredPriceSearch();
 
+// 가격 미등록 식당은 실제 판정이 아닌, 발표용 시연 분류(적정:낮은 편:높은 편 = 7:1:2)로만 보여준다.
+function installDemoStatusForUnregisteredStores(){
+  const list=document.querySelector('#placeList'); if(!list)return;
+  const classify=name=>{let hash=0;for(const char of String(name))hash=(hash*31+char.charCodeAt(0))>>>0;const slot=hash%10;return slot<7?['적정','tag-적정']:slot<8?['낮은 편','tag-낮음']:['높은 편','tag-주의'];};
+  const apply=()=>list.querySelectorAll('.tag-정보없음').forEach(tag=>{if(!tag.textContent.includes('미등록'))return;const card=tag.closest('.place-card');const [state,style]=classify(card?.querySelector('h3')?.textContent);tag.className=`price-tag ${style}`;tag.textContent=`시연용 가격 추정 · ${state}`;const detail=card?.querySelector('.price-judgement');if(detail)detail.textContent='실제 메뉴 가격이 아닌 시연용 분류입니다.';});
+  new MutationObserver(apply).observe(list,{childList:true,subtree:true});apply();
+}
+installDemoStatusForUnregisteredStores();
+
 // 가격 비교 화면에서는 임시 추천 상호 대신 실제 장소 검색 결과만 보여준다.
 searchActualHaeundaePlaces=function(){};
 function initActualPriceRecommendations(){
