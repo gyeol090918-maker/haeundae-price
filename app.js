@@ -285,6 +285,14 @@ function installDemoStatusForUnregisteredStores(){
 }
 installDemoStatusForUnregisteredStores();
 
+function installRegisteredPriceSort(){
+  const list=document.querySelector('#placeList'); if(!list)return;
+  let sorting=false;
+  const sortCards=()=>{if(sorting)return;const cards=[...list.querySelectorAll('.place-card')];const sorted=cards.slice().sort((a,b)=>{const known=card=>card.querySelector('.price-tag')?.textContent.includes('대표 메뉴')?0:1;return known(a)-known(b);});if(cards.every((card,index)=>card===sorted[index]))return;sorting=true;sorted.forEach(card=>list.appendChild(card));sorting=false;};
+  new MutationObserver(sortCards).observe(list,{childList:true}); sortCards();
+}
+installRegisteredPriceSort();
+
 // 가격 비교 화면에서는 임시 추천 상호 대신 실제 장소 검색 결과만 보여준다.
 searchActualHaeundaePlaces=function(){};
 function initActualPriceRecommendations(){
