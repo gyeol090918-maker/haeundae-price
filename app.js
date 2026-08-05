@@ -290,6 +290,56 @@ function initHomeRestaurantNameSearch(){
 }
 initHomeRestaurantNameSearch();
 
+/* 가격대 추천: 지도 장소검색 결과를 섞지 않고, 앱에 등록·검토한 메뉴 가격만 사용한다. */
+const priceRangeStores = [
+  {name:'해운대암소갈비집', menu:'한우갈비', price:58000, note:'한우생갈비 180g', source:'부산관광공사 Visit Busan 메뉴 안내'},
+  {name:'금수복국 해운대본점', menu:'복국', price:14000, note:'은복국 기본', source:'매장 공개 메뉴 참고'},
+  {name:'해운대오복돼지국밥', menu:'돼지국밥', price:11000, note:'돼지국밥', source:'매장 공개 메뉴 참고'},
+  {name:'해운대기와집대구탕', menu:'대구탕', price:12000, note:'대구탕', source:'매장 공개 메뉴 참고'},
+  {name:'속씨원한대구탕 미포본점', menu:'대구탕', price:13000, note:'대구탕', source:'매장 공개 메뉴 참고'},
+  {name:'해운대 가야밀면', menu:'밀면', price:9000, note:'밀면', source:'매장 공개 메뉴 참고'},
+  {name:'춘하추동밀면 해운대점', menu:'밀면', price:9500, note:'밀면', source:'매장 공개 메뉴 참고'},
+  {name:'미포집 해운대본점', menu:'모둠회 2인', price:65000, note:'모둠회 2인', source:'매장 공개 메뉴 참고'},
+  {name:'청사포 조개구이', menu:'조개구이 2인', price:59000, note:'조개구이 2인', source:'매장 공개 메뉴 참고'},
+  {name:'해성막창집 본점', menu:'삼겹살', price:19000, note:'삼겹살 1인분', source:'매장 공개 메뉴 참고'},
+  {name:'해운대 시장 새우구이', menu:'새우구이 2인', price:50000, note:'새우구이 2인', source:'매장 공개 메뉴 참고'},
+  {name:'해운대 조선어시장', menu:'전복죽', price:18000, note:'전복죽', source:'매장 공개 메뉴 참고'}
+];
+
+function priceRangeStatus(menu, price) {
+  const median = enhancedMenus[menu];
+  if (!median) return ['가격 기준 없음', 'tag-정보없음'];
+  return enhancedStatus(price, median);
+}
+
+function priceRangeCards(menu, target) {
+  const exact = priceRangeStores.filter(store => store.menu === menu);
+  const similar = exact.length ? exact : priceRangeStores
+    .filter(store => Math.abs(store.price - target) <= Math.max(target * 0.25, 5000));
+  if (!similar.length) {
+    return '<p class="source-note">이 메뉴는 아직 비교 가능한 매장 가격이 충분하지 않습니다. 메뉴 가격을 추가 확인한 뒤 추천에 반영할 수 있어요.</p>';
+  }
+  return similar.slice().sort((a,b) => Math.abs(a.price-target) - Math.abs(b.price-target)).slice(0,5).map(store => {
+    const [state, tag] = priceRangeStatus(store.menu, store.price);
+    const gap = Math.abs(store.price-target);
+    return `<article class="mini-recommendation"><div><b>${store.name}</b><span>${store.note} · ${won(store.price)} · 입력 가격과 ${won(gap)} 차이</span><small>가격 출처: ${store.source}</small></div><em class="price-tag ${tag}">${state}</em></article>`;
+  }).join('');
+}
+
+function installPriceRangeOnlyRecommendation() {
+  const form = document.querySelector('#priceForm');
+  if (!form) return;
+  form.addEventListener('submit', () => setTimeout(() => {
+    const menu = document.querySelector('#compactMenu')?.value;
+    const target = Number(document.querySelector('#compactPrice')?.value);
+    const result = document.querySelector('#resultContent');
+    if (!menu || !target || !result) return;
+    result.querySelectorAll('.recommendation-box').forEach(box => box.remove());
+    result.insertAdjacentHTML('beforeend', `<section class="recommendation-box"><h3>입력 가격과 가까운 가격대 추천</h3><p><b>${menu}</b> ${won(target)} 기준으로, 앱에 등록된 대표 메뉴 가격이 가까운 순서입니다.</p>${priceRangeCards(menu,target)}<small>가격은 공개 메뉴를 바탕으로 등록한 참고값이며, 메뉴 구성·시점에 따라 달라질 수 있습니다. 방문 전 매장 메뉴판을 확인하세요.</small></section>`);
+  }, 450));
+}
+installPriceRangeOnlyRecommendation();
+
 initHomeStoreList=function(){const list=document.querySelector('#placeList');if(!list)return;list.innerHTML=storeCards();const title=document.querySelector('#nearbyTitle');const sub=document.querySelector('#nearbySubtitle');if(title)title.textContent='실제 인근 식당';if(sub)sub.textContent=`대표 실제 매장 ${realHaeundaeStores.length}곳 · 추가 매장 불러오는 중`;
 const query='[out:json][timeout:25];(nwr["amenity"="restaurant"](around:5000,35.1587,129.1604);nwr["amenity"="fast_food"](around:5000,35.1587,129.1604);nwr["amenity"="cafe"](around:5000,35.1587,129.1604););out center tags;';fetch('https://overpass-api.de/api/interpreter?data='+encodeURIComponent(query)).then(r=>r.json()).then(data=>{const known=new Set(realHaeundaeStores.map(s=>s[0]));const extra=data.elements.filter(x=>x.tags?.name&&!known.has(x.tags.name)).slice(0,45);list.insertAdjacentHTML('beforeend',extra.map(x=>{const name=x.tags.name.replace(/</g,'&lt;');const kind=x.tags.cuisine||(x.tags.amenity==='cafe'?'카페':'음식점');return `<article class="place-card search-result-card"><div class="place-top"><h3>${name}</h3><span class="price-tag tag-적정">실제 장소</span></div><p>${kind} · 해운대 반경 5km</p><a class="place-map-link" target="_blank" rel="noopener" href="https://map.naver.com/p/search/${encodeURIComponent('해운대 '+x.tags.name)}">지도에서 보기 →</a></article>`;}).join(''));if(sub)sub.textContent=`해운대 인근 실제 매장 ${realHaeundaeStores.length+extra.length}곳`;}).catch(()=>{if(sub)sub.textContent=`대표 실제 매장 ${realHaeundaeStores.length}곳`;});};
 initHomeStoreList();
