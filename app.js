@@ -229,6 +229,17 @@ function initHomeRestaurantNameSearch(){
     title.textContent=`“${query}” 검색 결과`;
     sub.textContent=matches.length?`${matches.length}개 실제 인근 식당을 찾았습니다`:'등록 목록에서 찾지 못했습니다. 지도 검색 결과를 확인해 주세요.';
     list.innerHTML=matches.length?cards(matches):`<article class="place-card search-result-card"><div class="place-top"><h3>${query.replace(/</g,'&lt;')}</h3><span class="price-tag tag-적정">검색 결과 없음</span></div><p>등록된 대표 목록에는 없지만, 위 지도에서 실제 장소를 검색했습니다.</p></article>`;
+    if(window.kakao?.maps?.services){
+      sub.textContent='실제 지도 등록 식당을 찾는 중입니다…';
+      const places=new kakao.maps.services.Places();
+      places.keywordSearch(`해운대 ${query}`,(data,status)=>{
+        if(status!==kakao.maps.services.Status.OK||!data.length)return;
+        const actual=data.slice(0,15);
+        title.textContent=`“${query}” 실제 인근 식당`;
+        sub.textContent=`지도에 등록된 ${actual.length}개 식당입니다`;
+        list.innerHTML=actual.map(place=>{const name=place.place_name.replace(/</g,'&lt;');const category=(place.category_name||'음식점').split(' > ').pop();const address=place.road_address_name||place.address_name||'해운대 인근';return `<article class="place-card search-result-card"><div class="place-top"><h3>${name}</h3><span class="price-tag tag-적정">실제 장소</span></div><p>${category} · ${address}</p><p class="price-judgement">가격 비교 데이터는 대표 메뉴를 입력해 별도로 확인할 수 있습니다.</p><a class="place-map-link" target="_blank" rel="noopener" href="${place.place_url}">지도에서 보기 →</a></article>`;}).join('');
+      },{x:129.1604,y:35.1587,radius:5000,size:15,sort:kakao.maps.services.SortBy.DISTANCE});
+    }
   });
 }
 initHomeRestaurantNameSearch();
